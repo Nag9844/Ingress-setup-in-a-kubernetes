@@ -1,0 +1,1 @@
+# ingress-setup-in-a-kubernetes
