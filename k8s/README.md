@@ -1,5 +1,6 @@
 Kubernetes Ingress Setup and Rate Limiting on Minikube
 
+
 This guide will walk you through setting up Ingress routing and implementing rate limiting in a Kubernetes environment using Minikube. You will deploy two sample web applications (app1 and app2), expose them via services, set up routing using NGINX Ingress, and configure custom rate limiting.
 
 1. Setup Minikube Kubernetes Environment
