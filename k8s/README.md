@@ -1,17 +1,18 @@
 Kubernetes Ingress Setup and Rate Limiting on Minikube
-Objective
+
 This guide will walk you through setting up Ingress routing and implementing rate limiting in a Kubernetes environment using Minikube. You will deploy two sample web applications (app1 and app2), expose them via services, set up routing using NGINX Ingress, and configure custom rate limiting.
 
 1. Setup Minikube Kubernetes Environment
-Step 1: Install Minikube
+Install Minikube
 If you haven't installed Minikube yet, follow the installation instructions from the official documentation.
 Once installed, start Minikube:
 minikube start
 This will set up a local Kubernetes cluster using Minikube. Once it's up, check the status:
 kubectl get nodes
 You should see a node with the Ready status.
+
 2. Deploy Web Applications
-Step 2: Create Deployments for app1 and app2
+Create Deployments for app1 and app2
 Create two deployments for app1 and app2. Below are the YAML files for both applications.
 app1-deployment.yaml
 apiVersion: apps/v1
@@ -31,6 +32,7 @@ kind: Deploymentmetadata:
         image: gcr.io/google-samples/hello-app:1.0
         ports:
         - containerPort: 8080
+          
 app2-deployment.yaml
 apiVersion: apps/v1
 kind: Deploymentmetadata:
@@ -54,8 +56,9 @@ Apply these files to your Kubernetes cluster:
 kubectl apply -f app1-deployment.yaml
 kubectl apply -f app2-deployment.yaml
 
-Step 3: Expose app1 and app2 via Services
+Expose app1 and app2 via Services
 Next, create services to expose these applications. These services will use port 8080 to expose the applications internally.
+
 app1-service.yaml
 apiVersion: v1
 kind: Servicemetadata:
@@ -67,6 +70,7 @@ kind: Servicemetadata:
     port: 8080
     targetPort: 8080
   type: ClusterIP
+
 app2-service.yaml
 apiVersion: v1
 kind: Servicemetadata:
@@ -84,12 +88,13 @@ kubectl apply -f app1-service.yaml
 kubectl apply -f app2-service.yaml
 
 3. Deploy NGINX Ingress Controller
-Step 4: Install NGINX Ingress Controller
+Install NGINX Ingress Controller
 Deploy the NGINX Ingress Controller in your Minikube cluster using the following command:
 minikube addons enable ingress
 Note:- Ingress controll comes as addon on minikube
+
 4. Create Ingress Resources
-Step 5: Define Ingress Rules
+Define Ingress Rules
 Create an Ingress resource to route requests to app1 and app2. It will also configure custom logging and rate limiting.
 app-ingress.yaml
 apiVersion: networking.k8s.io/v1kind: Ingressmetadata:
@@ -138,24 +143,27 @@ kubectl rollout restart deployment ingress-nginx-controller -n ingress-nginx
 
 
 6. Testing the Setup
-Step 7: Verify Routing and Rate Limiting
-1.Test the /v1 route (should go to app1):
+Verify Routing and Rate Limiting
+i.Test the /v1 route (should go to app1):
 curl http://example.local/v1
 Expected response:
 Hello, world!
 Version: 1.0.0
 Hostname: <hostname>
-1.Test the /v2 route (should go to app2):
+
+ii.Test the /v2 route (should go to app2):
 curl http://example.local/v2
 Expected response:
 Hello, 
 world!Version: 2.0.0
 Hostname: <hostname>
-1.Test a random route (should return a 404):
+
+iii.Test a random route (should return a 404):
 curl http://example.local/random
 Expected response:
 404 Not Found
-1.Test rate limiting:
+
+iV.Test rate limiting:
 1.Send 6 requests to /v1 or /v2 and you should receive a 429 Too Many Requests response after the 5th request.
 curl http://example.local/v1
 curl http://example.local/v1
@@ -164,8 +172,7 @@ curl http://example.local/v1
 curl http://example.local/v1
 curl http://example.local/v1  # This should return 429
 
-6. Logs and Custom Logging
+7. Logs and Custom Logging
 To check logs for custom headers, use the following command:
 kubectl logs -n ingress-nginx <nginx-ingress-pod-name>
 This will show logs with the custom header X-Client-Id as part of the log entries.
-
